@@ -61,7 +61,7 @@ static void bubble_down(TreeNode *arr[], int i, int end)
         if(right < end && comparator(&arr[right], &arr[left]) < 0)
             max = right;
         
-        if(comparator(&src, &arr[max]) > 0)
+        if(comparator(&src, &arr[max]) < 0)
             break;
         
         arr[i] = arr[max];
