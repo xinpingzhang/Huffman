@@ -70,7 +70,13 @@ static void compute_freq (FILE *fp, Context *ctx)
     // more details.  Update the input character's entry in the frequency
     // table by incrementing its frequency.
     Frequency *arr = ctx->table;
-    memset(arr, 0, sizeof(ctx->table));
+
+    for(int i = 0; i < NUMBER_OF_CHARS; i ++)
+    {
+        arr[i].c = i;
+        arr[i].v = 0;
+    }
+    
     unsigned char buf[1024*1024];
     size_t len = 0;
     
@@ -78,7 +84,8 @@ static void compute_freq (FILE *fp, Context *ctx)
     {
         for(int i = 0; i < len; i ++)
         {
-            arr[buf[i]].c = buf[i];
+//            int c = buf[i];
+//            assert(arr[c].c == c);
             arr[buf[i]].v++;
         }
     }
