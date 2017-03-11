@@ -1,10 +1,10 @@
 /********************************************************************
-
+ 
  The pqueue module implements a priority queue for the Huffman coding
  algorithm.  It is a very simple implementation of a priority queue.  In
  particular, it simply maintains an array of TreeNode objects that gets sorted
  each time a TreeNode is enqueued (not efficient, but does the job).
-
+ 
  *******************************************************************/
 
 #include <stdio.h>
@@ -30,8 +30,8 @@
  */
 struct PriorityQueue
 {
-	TreeNode *queue[MAXSIZE];
-	int       count;
+    TreeNode *queue[MAXSIZE];
+    int       count;
 };
 
 /**
@@ -43,11 +43,11 @@ struct PriorityQueue
  */
 static int comparator (const void *x, const void *y)
 {
-	TreeNode* n1 = *(TreeNode**)x;
-	TreeNode* n2 = *(TreeNode**)y;
-	int a = n1->freq.v;
-	int b = n2->freq.v;
-	return a - b;
+    TreeNode* n1 = *(TreeNode**)x;
+    TreeNode* n2 = *(TreeNode**)y;
+    int a = n1->freq.v;
+    int b = n2->freq.v;
+    return a - b;
 }
 
 static void bubble_down(TreeNode *arr[], int i, int end)
@@ -107,9 +107,9 @@ static void bubble_up(TreeNode *arr[], int i)
  */
 PriorityQueue *pqueue_new()
 {
-	//calloc() automatically zeros the memory for us
-	PriorityQueue *pq = (PriorityQueue *)(calloc(1, sizeof(PriorityQueue)));
-	return pq;
+    //calloc() automatically zeros the memory for us
+    PriorityQueue *pq = (PriorityQueue *)(calloc(1, sizeof(PriorityQueue)));
+    return pq;
 }
 
 
@@ -118,7 +118,7 @@ PriorityQueue *pqueue_new()
  */
 static int is_empty(PriorityQueue *pq)
 {
-	return pq->count <= 0;
+    return pq->count <= 0;
 }
 
 
@@ -127,12 +127,12 @@ static int is_empty(PriorityQueue *pq)
  */
 void pqueue_free(PriorityQueue *pq)
 {
-	for (int i = 0; i < MAXSIZE; i++)
-	{
-		if (pq->queue[i] != NULL)
-			free(pq->queue[i]);
-	}
-	free(pq);
+    for (int i = 0; i < MAXSIZE; i++)
+    {
+        if (pq->queue[i] != NULL)
+            free(pq->queue[i]);
+    }
+    free(pq);
 }
 
 
@@ -142,15 +142,15 @@ void pqueue_free(PriorityQueue *pq)
  */
 void pqueue_enqueue (PriorityQueue *pq, TreeNode *n)
 {
-  // TODO:
-
-  // First, check whether there is still room in the PriorityQueue (comparing
-  // count against MAXSIZE).  Then, if there is room, store the tree node in
-  // the array slot indicated by count, and increment count.  Finally, call
-  // sort (to keep the queue properly sorted).
+    // TODO:
+    
+    // First, check whether there is still room in the PriorityQueue (comparing
+    // count against MAXSIZE).  Then, if there is room, store the tree node in
+    // the array slot indicated by count, and increment count.  Finally, call
+    // sort (to keep the queue properly sorted).
     pq->queue[pq->count++] = n;
     bubble_up(pq->queue, pq->count - 1);
-	return;
+    return;
 }
 
 
@@ -160,18 +160,18 @@ void pqueue_enqueue (PriorityQueue *pq, TreeNode *n)
  */
 TreeNode *pqueue_dequeue (PriorityQueue *pq)
 {
-  // TODO:
-
-  // First, check to see if the priority queue is empty.  If it is, return
-  // NULL.  Next, assign the tree node at the front of the queue to a
-  // temporary variable T and move each of the subsequent elements in the
-  // queue (1 through count-1) over by one slot to the left.  You need to do
-  // this to fill in the hole left by the tree node we just dequeued.  Next,
-  // decrement count and make the last entry (the one now referred to by
-  // count) NULL.  Finally, return the tree node you assigned to the temporary
-  // T.
-	if(pq == NULL)
-		return NULL;
+    // TODO:
+    
+    // First, check to see if the priority queue is empty.  If it is, return
+    // NULL.  Next, assign the tree node at the front of the queue to a
+    // temporary variable T and move each of the subsequent elements in the
+    // queue (1 through count-1) over by one slot to the left.  You need to do
+    // this to fill in the hole left by the tree node we just dequeued.  Next,
+    // decrement count and make the last entry (the one now referred to by
+    // count) NULL.  Finally, return the tree node you assigned to the temporary
+    // T.
+    if(pq == NULL)
+        return NULL;
     if(is_empty(pq))
         return NULL;
     
@@ -180,7 +180,7 @@ TreeNode *pqueue_dequeue (PriorityQueue *pq)
     pq->queue[pq->count] = NULL;
     
     bubble_down(pq->queue, 0, pq->count);
-	return data;
+    return data;
 }
 
 /**
@@ -188,15 +188,15 @@ TreeNode *pqueue_dequeue (PriorityQueue *pq)
  */
 void pqueue_print (PriorityQueue *pq)
 {
-	for (int i = 0; i < pq->count; i++)
-	{
-		printf("%c", pq->queue[i]->freq.c);
-
-		if (i + 1 < pq->count)
-			printf(", ");
-		else
-			printf("\n");
-	}
+    for (int i = 0; i < pq->count; i++)
+    {
+        printf("%c", pq->queue[i]->freq.c);
+        
+        if (i + 1 < pq->count)
+            printf(", ");
+        else
+            printf("\n");
+    }
 }
 
 
@@ -205,5 +205,5 @@ void pqueue_print (PriorityQueue *pq)
  */
 int pqueue_size (PriorityQueue *pq)
 {
-	return pq->count;
+    return pq->count;
 }
