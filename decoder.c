@@ -88,16 +88,13 @@ static int decode_one (Decoder *decoder)
     while (p->type != LEAF)
     {
         int bit = bits_io_read_bit(bfile);
+        
         if (bit == EOF)
-        {
             return EOF;
-        } else if (bit == 1)
-        {
+        else if (bit == 1)
             p = p->left;
-        } else
-        {
+        else
             p = p->right;
-        }
         
         if (p == NULL)
             return EOF;

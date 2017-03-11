@@ -68,7 +68,18 @@ static void compute_freq (FILE *fp, Context *ctx)
     // character from a file is `fgetc`.  You should look at its man page for
     // more details.  Update the input character's entry in the frequency
     // table by incrementing its frequency.
+    Frequency *arr = ctx->table;
+    unsigned char buf[1024*1024];
+    size_t len = 0;
     
+    while((len = fread(buf, 1, sizeof(buf), fp)))
+    {
+        for(int i = 0; i < len; i ++)
+        {
+            arr[i].c = i;
+            arr[i].v++;
+        }
+    }
     return;
 }
 
@@ -93,7 +104,22 @@ static void create_tree_nodes (Context *ctx)
     // its left and right children should be NULL.  We worry about constructing
     // the tree in Phase (3).  Lastly, enqueue the new TreeNode in the priority
     // queue.
+    Frequency *arr = ctx->table;
+    PriorityQueue *pq = ctx->pq;
     
+    assert(arr != NULL);
+    assert(pq != NULL);
+    
+    for(int i = 0; i < NUMBER_OF_CHARS; i ++)
+    {
+        if(arr[i].v > 0)
+        {
+            TreeNode *node = calloc(1, sizeof(TreeNode));
+            node->freq = arr[i];
+            node->type = LEAF;
+            pqueue_enqueue(pq, node);
+        }
+    }
     return;
 }
 
@@ -119,8 +145,25 @@ static TreeNode *build_tree (Context *ctx)
     // break out of this loop, your priority queue will have a single TreeNode
     // object which represents the root of the tree.  Dequeue the remaining
     // TreeNode and return it.
+    Frequency *arr = ctx->table;
+    PriorityQueue *pq = ctx->pq;
+    assert(pqueue_size(pq) > 0);
+    assert(arr != NULL);
+    assert(pq != NULL);
     
-    return NULL;
+    while(pqueue_size(pq) > 1)
+    {
+        TreeNode *l = pqueue_dequeue(pq);
+        TreeNode *r = pqueue_dequeue(pq);
+        TreeNode *n = tree_new();
+        n->freq.v = l->freq.v + r->freq.v;
+        n->left = l;
+        n->right = r;
+        pqueue_enqueue(pq, n);
+    }
+    
+    assert(pqueue_size(pq) == 1);
+    return pqueue_dequeue(pq);
 }
 
 
@@ -147,6 +190,7 @@ TreeNode* huffman_build_tree (const char *filename)
     FILE *fp = fopen(filename, "r");
     if (fp == NULL)
         return NULL;
+    
     compute_freq(fp, &ctx);
     fclose(fp);
     
@@ -180,16 +224,14 @@ int huffman_find (TreeNode *tree, char *encoding)
         if (*ch == '1')
         {
             if (t->left == NULL)
-            {
                 return -1;
-            }
+            
             t = t->left;
         }else
         {
             if (t->right == NULL)
-            {
                 return -1;
-            }
+            
             t = t->right;
         }
     }

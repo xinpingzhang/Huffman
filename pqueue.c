@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include "pqueue.h"
 #include "tree.h"
@@ -52,9 +51,6 @@ static int comparator (const void *x, const void *y)
 
 static void bubble_down(TreeNode *arr[], int i, int end)
 {
-    assert(i >= 0);
-    assert(i < end);
-    
     int left = LEFT_CHILD(i);
     int right = RIGHT_CHILD(i);
     TreeNode *src = arr[i];
@@ -78,8 +74,6 @@ static void bubble_down(TreeNode *arr[], int i, int end)
 
 static void bubble_up(TreeNode *arr[], int i)
 {
-    assert(i >= 0);
-    
     TreeNode *src = arr[i];
     int parent = PARENT(i);
     

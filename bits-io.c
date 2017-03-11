@@ -181,8 +181,8 @@ struct BitsIOFile
 		       // reading/writing
 };
 
-#define NO_BITS_WRITTEN ((unsigned char)(0b11111110))
-#define ALL_BITS_READ   ((unsigned char)(0b10000000))
+#define NO_BITS_WRITTEN ((unsigned char)(0xFE))
+#define ALL_BITS_READ   ((unsigned char)(0x80))
 #define EOF_VALUE       ((unsigned char)(EOF))  // will be 0b11111111
 
 
@@ -218,7 +218,6 @@ int bits_io_num_bytes (BitsIOFile *bfile)
 {
 
 	assert(bfile != NULL);
-
 	return bfile->count;
 }
 

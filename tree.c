@@ -23,13 +23,8 @@ static int ids = 1;
  */
 TreeNode *tree_new()
 {
-    TreeNode *n = (TreeNode *)(malloc(sizeof(TreeNode)));
+    TreeNode *n = (TreeNode *)(calloc(1, sizeof(TreeNode)));
     n->id     = ids++;
-    n->left   = NULL;
-    n->right  = NULL;
-    n->next   = NULL;
-    n->freq.v = 0;
-    n->freq.c = '\0';
     n->type   = INTERNAL;
     return n;
 }
@@ -67,7 +62,7 @@ void tree_free (TreeNode *tree) {
  * recursively visits each node in the tree and prints the information
  * contained in the node at the correct indent.
  */
-static void tree_print_indent (TreeNode *tree, int depth, int indent)
+static void tree_print_indent(TreeNode *tree, int depth, int indent)
 {
     if (tree != NULL)
     {

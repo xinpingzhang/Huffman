@@ -10,10 +10,10 @@
  */
 typedef struct Frequency Frequency;
 struct Frequency {
-  // Frequency value:
-  int  v;
-  // Character:
-  char c;
+    // Frequency value:
+    int  v;
+    // Character:
+    char c;
 };
 
 
@@ -23,8 +23,8 @@ struct Frequency {
  */
 typedef enum NodeType NodeType;
 enum NodeType {
-  INTERNAL,
-  LEAF
+    INTERNAL,
+    LEAF
 };
 
 
@@ -40,12 +40,12 @@ enum NodeType {
  */
 typedef struct TreeNode TreeNode;
 struct TreeNode {
-  int        id;
-  NodeType   type;
-  Frequency  freq;
-  TreeNode  *left;
-  TreeNode  *right;
-  TreeNode  *next;
+    int        id;
+    NodeType   type;
+    Frequency  freq;
+    TreeNode  *left;
+    TreeNode  *right;
+    TreeNode  *next;
 };
 
 

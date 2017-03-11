@@ -34,7 +34,8 @@ struct Encoder {
 Encoder *encoder_new (const char *infile, const char *outfile)
 {
     FILE *infp = fopen(infile, "r");
-    if (infp == NULL) {
+    if (infp == NULL)
+    {
         return NULL;
     }
     
