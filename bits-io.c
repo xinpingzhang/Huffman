@@ -216,7 +216,6 @@ BitsIOFile *bits_io_open (const char *name, const char *mode)
  */
 int bits_io_num_bytes (BitsIOFile *bfile) 
 {
-
 	assert(bfile != NULL);
 	return bfile->count;
 }
@@ -227,7 +226,6 @@ int bits_io_num_bytes (BitsIOFile *bfile)
  */
 int bits_io_close (BitsIOFile *bfile) 
 {
-
 	assert(bfile != NULL);
 
   // Write the current (last) byte if we are in 'w' mode:
@@ -260,7 +258,6 @@ int bits_io_close (BitsIOFile *bfile)
  */
 int bits_io_read_bit (BitsIOFile *bfile) 
 {
-
 	assert(bfile != NULL);
 
   // TODO:
@@ -284,8 +281,29 @@ int bits_io_read_bit (BitsIOFile *bfile)
   // one bit and return it.  The bit to return is the high order bit of the
   // byte.  Perform the shift left operation before returning (shifting in a
   // 0), to leave the byte ready for the next call.
-
-	return EOF;
+    unsigned char byte = bfile->byte;
+    
+    if(byte == ALL_BITS_READ)
+    {
+        if(feof(bfile->fp))
+            return EOF;
+        byte = getc(bfile->fp);
+        bfile->count++;
+        unsigned char pad = 1;
+        
+        while(byte >> 7)
+        {
+            byte <<= 1;
+            byte |= pad;
+            pad = 0;
+        }
+        byte <<= 1;
+        byte |= pad;
+    }
+    int b = (byte >> 7);
+    byte <<= 1;
+    bfile->byte = byte;
+	return b;
 }
 
 

@@ -108,7 +108,8 @@ START_TEST(test_bits_io_read_bit)
     ck_assert_msg(result != EOF, "closing the file should not be EOF.");
     
     bfile = bits_io_open("test/test-stress.hf", "r");
-    for (int i = 0; i < BIT_ITERATIONS; i++) {
+    for (int i = 0; i < BIT_ITERATIONS; i++)
+    {
         bit = bits_io_read_bit(bfile);
         ck_assert_int_eq(bit, i%2);
     }
