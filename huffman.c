@@ -76,8 +76,8 @@ static void compute_freq (FILE *fp, Context *ctx)
     {
         for(int i = 0; i < len; i ++)
         {
-            arr[i].c = i;
-            arr[i].v++;
+            arr[buf[i]].c = buf[i];
+            arr[buf[i]].v++;
         }
     }
     return;
