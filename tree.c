@@ -308,12 +308,14 @@ TreeNode *tree_deserialize (FILE *fp)
         // a '#' character. If it is not a '#' character we push the character
         // back into the file stream and continue with the loop.
         delim = fgetc(fp);
-        if (delim != '#') {
+        if (delim != '#')
+        {
             ungetc(delim, fp);
         }
     }
     
-    if (head == NULL) {
+    if (head == NULL)
+    {
         return NULL;
     }
     
@@ -322,8 +324,10 @@ TreeNode *tree_deserialize (FILE *fp)
     TreeNode *p = NULL;  // previous node
     for (c = head->next, p = NULL;
          c != NULL;
-         p = c, c = c->next) {
-        if (p != NULL) {
+         p = c, c = c->next)
+    {
+        if (p != NULL)
+        {
             p->next = NULL;
         }
     }
