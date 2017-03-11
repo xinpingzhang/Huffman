@@ -58,7 +58,7 @@ static void bubble_down(TreeNode *arr[], int i, int end)
     while(left < end)
     {
         int max = left;
-        if(right < end && comparator(&arr[right], &arr[left]) > 0)
+        if(right < end && comparator(&arr[right], &arr[left]) < 0)
             max = right;
         
         if(comparator(&src, &arr[max]) > 0)
@@ -77,7 +77,7 @@ static void bubble_up(TreeNode *arr[], int i)
     TreeNode *src = arr[i];
     int parent = PARENT(i);
     
-    while (i > 0 && comparator(&arr[i], &arr[parent]) > 0)
+    while (i > 0 && comparator(&arr[i], &arr[parent]) < 0)
     {
         arr[i] = arr[parent];
         i = parent;
