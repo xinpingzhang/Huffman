@@ -44,16 +44,15 @@ int tree_size (TreeNode *tree)
 /**
  * Deallocates a TreeNode object.
  */
-void tree_free (TreeNode *tree) {
+void tree_free (TreeNode *tree)
+{
     if (tree == NULL)
-    {
         return;
-    } else
-    {
-        tree_free(tree->left);
-        tree_free(tree->right);
-        free(tree);
-    }
+    
+    tree_free(tree->left);
+    tree_free(tree->right);
+    free(tree);
+    
 }
 
 

@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include "huffman.h"
 #include "tree.h"
@@ -69,6 +70,7 @@ static void compute_freq (FILE *fp, Context *ctx)
     // more details.  Update the input character's entry in the frequency
     // table by incrementing its frequency.
     Frequency *arr = ctx->table;
+    memset(arr, 0, sizeof(ctx->table));
     unsigned char buf[1024*1024];
     size_t len = 0;
     
@@ -106,10 +108,7 @@ static void create_tree_nodes (Context *ctx)
     // queue.
     Frequency *arr = ctx->table;
     PriorityQueue *pq = ctx->pq;
-    
-    assert(arr != NULL);
-    assert(pq != NULL);
-    
+        
     for(int i = 0; i < NUMBER_OF_CHARS; i ++)
     {
         if(arr[i].v > 0)
@@ -145,11 +144,7 @@ static TreeNode *build_tree (Context *ctx)
     // break out of this loop, your priority queue will have a single TreeNode
     // object which represents the root of the tree.  Dequeue the remaining
     // TreeNode and return it.
-    Frequency *arr = ctx->table;
     PriorityQueue *pq = ctx->pq;
-    assert(pqueue_size(pq) > 0);
-    assert(arr != NULL);
-    assert(pq != NULL);
     
     while(pqueue_size(pq) > 1)
     {
@@ -162,7 +157,6 @@ static TreeNode *build_tree (Context *ctx)
         pqueue_enqueue(pq, n);
     }
     
-    assert(pqueue_size(pq) == 1);
     return pqueue_dequeue(pq);
 }
 
