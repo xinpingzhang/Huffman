@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <assert.h>
 #include "pqueue.h"
 #include "tree.h"
 
@@ -57,15 +57,15 @@ static void bubble_down(TreeNode *arr[], int i, int end)
     
     while(left < end)
     {
-        int max = left;
+        int min = left;
         if(right < end && comparator(&arr[right], &arr[left]) < 0)
-            max = right;
+            min = right;
         
-        if(comparator(&src, &arr[max]) < 0)
+        if(comparator(&src, &arr[min]) < 0)
             break;
         
-        arr[i] = arr[max];
-        i = max;
+        arr[i] = arr[min];
+        i = min;
         left = LEFT_CHILD(i);
         right = left + 1;
     }
@@ -77,7 +77,7 @@ static void bubble_up(TreeNode *arr[], int i)
     TreeNode *src = arr[i];
     int parent = PARENT(i);
     
-    while (i > 0 && comparator(&arr[i], &arr[parent]) < 0)
+    while (parent >= 0 && comparator(&arr[parent], &src) > 0)
     {
         arr[i] = arr[parent];
         i = parent;
@@ -136,6 +136,7 @@ void pqueue_free(PriorityQueue *pq)
  */
 void pqueue_enqueue (PriorityQueue *pq, TreeNode *n)
 {
+    //    checkRep(pq);
     // TODO:
     
     // First, check whether there is still room in the PriorityQueue (comparing
@@ -144,6 +145,8 @@ void pqueue_enqueue (PriorityQueue *pq, TreeNode *n)
     // sort (to keep the queue properly sorted).
     pq->queue[pq->count++] = n;
     bubble_up(pq->queue, pq->count - 1);
+    
+    //    checkRep(pq);
     return;
 }
 
@@ -154,6 +157,7 @@ void pqueue_enqueue (PriorityQueue *pq, TreeNode *n)
  */
 TreeNode *pqueue_dequeue (PriorityQueue *pq)
 {
+    //    checkRep(pq);
     // TODO:
     
     // First, check to see if the priority queue is empty.  If it is, return
@@ -174,6 +178,8 @@ TreeNode *pqueue_dequeue (PriorityQueue *pq)
     pq->queue[pq->count] = NULL;
     
     bubble_down(pq->queue, 0, pq->count);
+    
+    //    checkRep(pq);
     return data;
 }
 
@@ -201,3 +207,23 @@ int pqueue_size (PriorityQueue *pq)
 {
     return pq->count;
 }
+
+//void checkRep(PriorityQueue *pq)
+//{
+//    int limit = pq->count;
+//    
+//    for(int i = 0; i < limit; i ++)
+//    {
+//        int left = LEFT_CHILD(i);
+//        int right = left+1;
+//        if(left >= limit)
+//        {
+//            return;
+//        }
+//        assert(comparator(&pq->queue[i], &pq->queue[left]) <= 0);
+//        if(right < limit)
+//        {
+//            assert(comparator(&pq->queue[i], &pq->queue[right]) <= 0);
+//        }
+//    }
+//}

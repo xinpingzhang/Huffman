@@ -45,4 +45,8 @@ int pqueue_size (PriorityQueue *pq);
  */
 void pqueue_print (PriorityQueue *pq);
 
+/**
+ * Check the priority queue for internal consistency
+ */
+void checkRep(PriorityQueue *pq);
 #endif
