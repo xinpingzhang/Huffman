@@ -1,6 +1,7 @@
 #ifndef __HUFFMAN_H
 #define __HUFFMAN_H
 #include "tree.h"
+#include "pqueue.h"
 
 /**
  * Returns a pointer to a TreeNode object or NULL if there is an error.
@@ -18,5 +19,6 @@ TreeNode *huffman_build_tree (const char *filename);
  *
  */
 int huffman_find (TreeNode *root, char *encoding);
+TreeNode *merge_nodes(PriorityQueue *pq);
 
 #endif

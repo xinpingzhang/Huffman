@@ -151,8 +151,11 @@ static TreeNode *build_tree (Context *ctx)
     // break out of this loop, your priority queue will have a single TreeNode
     // object which represents the root of the tree.  Dequeue the remaining
     // TreeNode and return it.
-    PriorityQueue *pq = ctx->pq;
-    
+    return merge_nodes(ctx->pq);
+}
+
+TreeNode *merge_nodes(PriorityQueue *pq)
+{
     while(pqueue_size(pq) > 1)
     {
         TreeNode *l = pqueue_dequeue(pq);
@@ -166,7 +169,6 @@ static TreeNode *build_tree (Context *ctx)
     
     return pqueue_dequeue(pq);
 }
-
 
 /**
  * Returns a pointer to a TreeNode object or NULL if there is an error.

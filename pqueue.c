@@ -46,7 +46,9 @@ static int comparator (const void *x, const void *y)
     TreeNode* n2 = *(TreeNode**)y;
     int a = n1->freq.v;
     int b = n2->freq.v;
-    return a - b;
+    if (a < b) return -1;
+    else if(a > b) return 1;
+    else return n1->freq.c - n2->freq.c;
 }
 
 static void bubble_down(TreeNode *arr[], int i, int end)

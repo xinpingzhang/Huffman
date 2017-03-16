@@ -14,6 +14,7 @@
 #include <assert.h>
 #include "tree.h"
 #include "pqueue.h"
+#include "huffman.h"
 
 // This is used to give each node in the tree a unique identifier:
 static int ids = 1;
@@ -111,7 +112,7 @@ void tree_print(TreeNode* tree)
  */
 static int tree_serialize_rec (TreeNode *tree, FILE *fp)
 {
-    int result;
+    int result = 0;
     
     // If the tree is a LEAF, then serialize to the correct format and terminate
     // the recursion (base case):
@@ -145,13 +146,13 @@ static int tree_serialize_rec (TreeNode *tree, FILE *fp)
             }
         }
         // Lastly, serialize the internal node:
-        result = fprintf(fp, "%d %d %d %d %d %d,",
-                         tree->type,
-                         tree->id,
-                         tree->freq.v,
-                         tree->freq.c,
-                         tree->left  == NULL ? 0 : tree->left ->id,
-                         tree->right == NULL ? 0 : tree->right->id);
+        //        result = fprintf(fp, "%d %d %d %d %d %d,",
+        //                         tree->type,
+        //                         tree->id,
+        //                         tree->freq.v,
+        //                         tree->freq.c,
+        //                         tree->left  == NULL ? 0 : tree->left ->id,
+        //                         tree->right == NULL ? 0 : tree->right->id);
     }
     return result;
 }
@@ -198,8 +199,7 @@ TreeNode *tree_deserialize (FILE *fp)
     
     // Read in the starting delimiter character.  If it is not the
     // correct delimiter (#) then we return NULL.
-    if (fscanf(fp, "%c", &delim) != 1 ||
-        delim != '#')
+    if (getc(fp) != '#')
     {
         return NULL;
     }
@@ -213,6 +213,7 @@ TreeNode *tree_deserialize (FILE *fp)
     // This is the main loop where we keep reading in serialized records of
     // TreeNodes. We keep looping until we see the ending terminal character
     // '#'.
+    PriorityQueue *pq = pqueue_new();
     while (delim != '#')
     {
         // Read in a record.
@@ -224,6 +225,7 @@ TreeNode *tree_deserialize (FILE *fp)
         // file format and we return NULL.
         if (count == EOF)
         {
+            pqueue_free(pq);
             return NULL;
         }
         
@@ -231,6 +233,7 @@ TreeNode *tree_deserialize (FILE *fp)
         // an error in the file format, so we return NULL.
         if (count < 6)
         {
+            pqueue_free(pq);
             return NULL;
         }
         
@@ -242,60 +245,7 @@ TreeNode *tree_deserialize (FILE *fp)
         n->freq.v = fval;
         n->freq.c = fch;
         
-        // Next, we search for the left and right child nodes and add in the new
-        // node to the list.  This is a bit tricky and depends on how we serialize
-        // the tree.  In particular, the tree_serialize functionality ensures that
-        // child nodes are written first so when we read TreeNode's in we are
-        // guaranteed that we have their children already in the list.
-        //
-        // We use the `next` field in the TreeNode structure to keep a simple list
-        // of tree nodes.
-        
-        TreeNode *c = NULL;  // current node
-        TreeNode *p = NULL;  // previous node
-        
-        // Iterate through the entire list of TreeNodes.
-        for (c = head, p = NULL;
-             c != NULL;
-             p = c, c = c->next)
-        {
-            // If the current node's ID is the left ID of the node we just read in
-            // from the serialized format, we then assign the current node to the
-            // left child of the new node.
-            if (c->id == left)
-            {
-                n->left = c;
-                // Adjust pointers to remove the child node from the list.
-                if (p == NULL)
-                {
-                    head = head->next;
-                } else
-                {
-                    p->next = c->next;
-                }
-            }
-            
-            // If the current node's ID is the right ID of the node we just read in
-            // from the serialized format, we then assign the current node to the
-            // right child of the new node.
-            if (c->id == right)
-            {
-                n->right = c;
-                // Adjust pointers to remove the child node from the list.
-                if (p == NULL)
-                {
-                    head = head->next;
-                } else
-                {
-                    p->next = c->next;
-                }
-            }
-        }
-        
-        // Add the new node into the list as it might be the child of a TreeNode
-        // that we have yet to read in.
-        n->next = head;
-        head = n;
+        pqueue_enqueue(pq, n);
         
         // This is the delimiter check.  We grab the next character from the file
         // and check to see if it is the end of the input. The end is marked with
@@ -308,24 +258,7 @@ TreeNode *tree_deserialize (FILE *fp)
         }
     }
     
-    if (head == NULL)
-    {
-        return NULL;
-    }
-    
-    // Reset all next pointers to NULL.
-    TreeNode *c = NULL;  // current node
-    TreeNode *p = NULL;  // previous node
-    for (c = head->next, p = NULL;
-         c != NULL;
-         p = c, c = c->next)
-    {
-        if (p != NULL)
-        {
-            p->next = NULL;
-        }
-    }
-    p->next = NULL;
-    
+    head = merge_nodes(pq);
+    pqueue_free(pq);
     return head;
 }
