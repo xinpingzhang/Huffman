@@ -178,13 +178,13 @@ static TreeNode *build_tree (Context *ctx)
 TreeNode* huffman_build_tree (const char *filename)
 {
     // Define a Context object:
-    Context ctx;
+    Context *ctx = malloc(sizeof(Context));
     
     // Create a priority queue:
-    ctx.pq = pqueue_new();
+    ctx->pq = pqueue_new();
     
     // If the priority queue is NULL there was a problem!
-    if (ctx.pq == NULL)
+    if (ctx->pq == NULL)
         return NULL;
     
     // (1) Compute the frequencies:
@@ -192,18 +192,18 @@ TreeNode* huffman_build_tree (const char *filename)
     if (fp == NULL)
         return NULL;
     
-    compute_freq(fp, &ctx);
+    compute_freq(fp, ctx);
     fclose(fp);
     
     // (2) Create the tree nodes:
-    create_tree_nodes(&ctx);
+    create_tree_nodes(ctx);
     
     // (3) Build Huffman tree:
-    TreeNode *root = build_tree(&ctx);
+    TreeNode *root = build_tree(ctx);
     
     // Free the priority queue - it is no longer needed.
-    free(ctx.pq);
-    
+    free(ctx->pq);
+    free(ctx);
     return root;
 }
 

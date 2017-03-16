@@ -116,6 +116,8 @@ START_TEST(test_bits_io_read_bit)
     // count here includes any partially filled final byte
     ck_assert_int_eq(bits_io_num_bytes(bfile), (BIT_ITERATIONS+6)/7);
     
+    ck_assert_int_eq(EOF, bits_io_read_bit(bfile));
+    
     result = bits_io_close(bfile);
     ck_assert_msg(result != EOF, "closing the file should not be EOF.");
     
