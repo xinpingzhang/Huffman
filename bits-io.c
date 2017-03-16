@@ -172,16 +172,17 @@
  * This structure is used to maintain the writing/reading of a
  * compressed file.
  */
-#define BUF_SIZE (1<<20)
-#define BUF_BITS (1<<23)
 
+#define BUF_SIZE (1<<20)
 struct BitsIOFile 
 {
     FILE *fp;            // The output/input file
+    int count;           // Number of bytes read/written
     char mode;           // The mode 'w' for write and 'r' for read
-    int bits;           //# of bits have read/write from current buffer
-    char buf[BUF_SIZE];
-    int n_bits;          //# of bits in buffer
+    unsigned char byte;  // The byte buffer to hold the bits we are
+		       // reading/writing
+    unsigned int index;
+    unsigned char buf[BUF_SIZE];
 };
 
 #define NO_BITS_WRITTEN ((unsigned char)(0xFE))
@@ -197,6 +198,7 @@ struct BitsIOFile
  */
 BitsIOFile *bits_io_open (const char *name, const char *mode) 
 {
+
 	FILE *fp = fopen(name, mode);
 
 	if (fp == NULL) 
@@ -206,7 +208,9 @@ BitsIOFile *bits_io_open (const char *name, const char *mode)
 
 	BitsIOFile *bfile = (BitsIOFile*)(calloc(1, sizeof(BitsIOFile)));
 	bfile->fp    = fp;
+	bfile->count = 0;
 	bfile->mode  = mode_letter;
+	bfile->byte  = ((mode_letter == 'w') ? NO_BITS_WRITTEN : ALL_BITS_READ);
 	return bfile;
 }
 
@@ -217,38 +221,39 @@ BitsIOFile *bits_io_open (const char *name, const char *mode)
 int bits_io_num_bytes (BitsIOFile *bfile) 
 {
 	assert(bfile != NULL);
-    if(bfile->mode == 'r')
-        return (int)ftell(bfile->fp);
-    else
-        return (int)ftell(bfile->fp) + (bfile->bits>>3);
+	return bfile->count;
 }
 
 
 /**
  * Close the BitsIOFile. Returns EOF if there was an error.
  */
-int bits_io_close (BitsIOFile *bfile) 
+int bits_io_close (BitsIOFile *bfile)
 {
-	assert(bfile != NULL);
-
-  // Write the current (last) byte if we are in 'w' mode:
-	if (bfile->mode == 'w')
-	{
-        int bytes = (bfile->bits + 7) >> 3;
-        
-        if(bytes)
+    assert(bfile != NULL);
+    
+    if(bfile->mode == 'w')
+    {
+        fwrite(bfile->buf, 1, bfile->index, bfile->fp);
+        // Write the current (last) byte if we are in 'w' mode:
+        if(bfile->byte != NO_BITS_WRITTEN)
         {
-            if(fwrite(bfile->buf, 1, bytes, bfile->fp) != bytes)
+            bfile->byte = fputc(bfile->byte, bfile->fp);
+            ++bfile->count;
+            
+            // Check to see if there was a problem:
+            if (bfile->byte == EOF_VALUE)
             {
+                // We will follow the fputc return value convention
+                // which is to return EOF:
                 return EOF;
             }
         }
-	}
-
-	fclose(bfile->fp);
-	free(bfile);
-
-	return 0;
+    }
+    fclose(bfile->fp);
+    free(bfile);
+    
+    return 0;
 }
 
 
@@ -282,88 +287,68 @@ int bits_io_read_bit (BitsIOFile *bfile)
   // one bit and return it.  The bit to return is the high order bit of the
   // byte.  Perform the shift left operation before returning (shifting in a
   // 0), to leave the byte ready for the next call.
-    if(bfile->mode != 'r')
-        return EOF;
+    unsigned char byte = bfile->byte;
     
-    int bits = bfile->bits;
-    
-    if(bits >= bfile->n_bits)
+    if(byte == ALL_BITS_READ)
     {
-        int read = (int)fread(bfile->buf, 1, sizeof(bfile->buf), bfile->fp);
-        if(read == 0)
+        int c = getc(bfile->fp);
+        if(c == EOF)
             return EOF;
+        byte = c;
+        bfile->count++;
+        unsigned char pad = 1;
         
-        int bits_read = read << 3;
-//        if(feof(bfile->fp))
-//        {
-//            char c = bfile->buf[read-1];
-//            while(c & 0b10000000)
-//            {
-//                bits_read--;
-//                c <<= 1;
-//            }
-//            bits_read--;
-//            c <<= 1;
-//            bfile->buf[read-1] = c;
-//        }
-        
-        bfile->n_bits = bits_read;
-        bits = 0;
-//        if(bits_read == 0)
-//            return EOF;
+        while(byte & 0b10000000)
+        {
+            byte <<= 1;
+            byte |= pad;
+            pad = 0;
+        }
+        byte <<= 1;
+        byte |= pad;
     }
-    
-    //index of byte we should look at
-    int n_byte = bits >> 3;
-    
-    //byte we are going to look at
-    char c = bfile->buf[n_byte];
-    
-//    if(feof(bfile->fp) && c == (char)0x80)
-//        return EOF;
-    
-    //# of bits read from current byte
-    int r_bits = 7 - (bits & 7);
-    
-    //update for next read/write
-    bits++;
-    bfile->bits = bits;
-    
-	return (c >> r_bits) & 1;
+    int b = (byte >> 7);
+    byte <<= 1;
+    bfile->byte = byte;
+	return b;
 }
 
 
 /**
  * Writes the given bit (1 or 0) to the BitsIOFile.
  */
-int bits_io_write_bit (BitsIOFile *bfile, int bit)
+int bits_io_write_bit (BitsIOFile *bfile, int bit) 
 {
 	assert(bfile != NULL);
 	assert((bit & 1) == bit);
-    
-    //# of bits written
-    int bits = bfile->bits;
-    
-    //if we reached the end of the buffer
-    if(bits >= BUF_BITS)
-    {
-        fwrite(bfile->buf, 1, bits>>3, bfile->fp);
-        bits = 0;
-    }
-    //get the byte we are going to work with
-    char c = bfile->buf[bits >> 3];
-    
-    //increment # of bits written
-    
-    
-    //bit location
-    int r_bits = 7 - (bits & 7);
-    
-    c = c | (bit << r_bits);
-    bfile->buf[bits>>3] = c;
-    
-    bits++;
-    bfile->bits = bits;
+
+  // Write the bit into the byte:
+	bfile->byte = (bfile->byte << 1) | bit;
+
+  // Check if the byte is full and write if it is.
+  // A byte is full if its left-most bit is 0:
+	if ((bfile->byte >> 7) == 0) 
+	{
+        bfile->count++;
+        if(bfile->index >= BUF_SIZE)
+        {
+            fwrite(bfile->buf, 1, BUF_SIZE, bfile->fp);
+            bfile->index = 0;
+        }
+        bfile->buf[bfile->index++] = bfile->byte;
+        
+    // Check to see if there was a problem:
+		if (bfile->byte == EOF_VALUE) 
+		{
+      // We will follow the fputc return value convention
+      // which is to return EOF:
+			return EOF;
+		}
+
+    // Reset the byte:
+		bfile->byte = NO_BITS_WRITTEN;
+	}
+
 	return bit;
 }
 
