@@ -115,7 +115,8 @@ void decoder_decode (Decoder *decoder) {
     // Read characters:
     for (int ch; (ch = decode_one(decoder)) != EOF; )
     {
-        fprintf(decoder->outfp, "%c", ch);
+        fputc(ch, decoder->outfp);
+//        fprintf(decoder->outfp, "%c", ch);
     }
     return;
 }

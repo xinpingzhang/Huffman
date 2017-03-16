@@ -285,9 +285,10 @@ int bits_io_read_bit (BitsIOFile *bfile)
     
     if(byte == ALL_BITS_READ)
     {
-        if(feof(bfile->fp))
+        int c = getc(bfile->fp);
+        if(c == EOF)
             return EOF;
-        byte = getc(bfile->fp);
+        byte = c;
         bfile->count++;
         unsigned char pad = 1;
         
