@@ -182,6 +182,7 @@ struct BitsIOFile
     unsigned char byte;  // The byte buffer to hold the bits we are
 		       // reading/writing
     unsigned int index;
+    unsigned int read;
     unsigned char buf[BUF_SIZE];
 };
 
@@ -291,10 +292,15 @@ int bits_io_read_bit (BitsIOFile *bfile)
     
     if(byte == ALL_BITS_READ)
     {
-        int c = getc(bfile->fp);
-        if(c == EOF)
-            return EOF;
-        byte = c;
+        if(bfile->index >= bfile->read)
+        {
+            int read = (int)fread(bfile->buf, 1, BUF_SIZE, bfile->fp);
+            if(read == 0)
+                return EOF;
+            bfile->read = (int)read;
+            bfile->index = 0;
+        }
+        byte = bfile->buf[bfile->index++];
         bfile->count++;
         unsigned char pad = 1;
         
@@ -317,18 +323,18 @@ int bits_io_read_bit (BitsIOFile *bfile)
 /**
  * Writes the given bit (1 or 0) to the BitsIOFile.
  */
-int bits_io_write_bit (BitsIOFile *bfile, int bit) 
+int bits_io_write_bit (BitsIOFile *bfile, int bit)
 {
-	assert(bfile != NULL);
-	assert((bit & 1) == bit);
-
-  // Write the bit into the byte:
-	bfile->byte = (bfile->byte << 1) | bit;
-
-  // Check if the byte is full and write if it is.
-  // A byte is full if its left-most bit is 0:
-	if ((bfile->byte >> 7) == 0) 
-	{
+    assert(bfile != NULL);
+    assert((bit & 1) == bit);
+    
+    // Write the bit into the byte:
+    bfile->byte = (bfile->byte << 1) | bit;
+    
+    // Check if the byte is full and write if it is.
+    // A byte is full if its left-most bit is 0:
+    if ((bfile->byte >> 7) == 0)
+    {
         bfile->count++;
         if(bfile->index >= BUF_SIZE)
         {
@@ -337,19 +343,19 @@ int bits_io_write_bit (BitsIOFile *bfile, int bit)
         }
         bfile->buf[bfile->index++] = bfile->byte;
         
-    // Check to see if there was a problem:
-		if (bfile->byte == EOF_VALUE) 
-		{
-      // We will follow the fputc return value convention
-      // which is to return EOF:
-			return EOF;
-		}
-
-    // Reset the byte:
-		bfile->byte = NO_BITS_WRITTEN;
-	}
-
-	return bit;
+        // Check to see if there was a problem:
+        if (bfile->byte == EOF_VALUE)
+        {
+            // We will follow the fputc return value convention
+            // which is to return EOF:
+            return EOF;
+        }
+        
+        // Reset the byte:
+        bfile->byte = NO_BITS_WRITTEN;
+    }
+    
+    return bit;
 }
 
 
