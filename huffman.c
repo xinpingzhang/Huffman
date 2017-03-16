@@ -120,7 +120,7 @@ static void create_tree_nodes (Context *ctx)
     {
         if(arr[i].v > 0)
         {
-            TreeNode *node = calloc(1, sizeof(TreeNode));
+            TreeNode *node = tree_new();
             node->freq = arr[i];
             node->type = LEAF;
             pqueue_enqueue(pq, node);
