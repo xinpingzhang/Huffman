@@ -118,9 +118,9 @@ static int tree_serialize_rec (TreeNode *tree, FILE *fp)
     // the recursion (base case):
     if (tree->type == LEAF)
     {
-        result = fprintf(fp, "%d %d %d %d %d %d,",
-                         tree->type,
-                         tree->id,
+        result = fprintf(fp, "%d %d,",
+//                         tree->type,
+//                         tree->id,
                          tree->freq.v,
                          tree->freq.c);
 //                         tree->left  == NULL ? 0 : tree->left ->id,
