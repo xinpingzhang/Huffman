@@ -122,9 +122,9 @@ static int tree_serialize_rec (TreeNode *tree, FILE *fp)
                          tree->type,
                          tree->id,
                          tree->freq.v,
-                         tree->freq.c,
-                         tree->left  == NULL ? 0 : tree->left ->id,
-                         tree->right == NULL ? 0 : tree->right->id);
+                         tree->freq.c);
+//                         tree->left  == NULL ? 0 : tree->left ->id,
+//                         tree->right == NULL ? 0 : tree->right->id);
     } else
     {
         // If the tree is an INTERNAL node then recursively serialize the left
@@ -189,12 +189,12 @@ int tree_serialize (TreeNode *tree, FILE *fp)
 TreeNode *tree_deserialize (FILE *fp)
 {
     // First, declare all the important fields we need for a TreeNode:
-    int type;
-    int id;
+//    int type;
+//    int id;
     int fval;
     int fch;
-    int left;
-    int right;
+//    int left;
+//    int right;
     char delim;
     
     // Read in the starting delimiter character.  If it is not the
@@ -217,9 +217,9 @@ TreeNode *tree_deserialize (FILE *fp)
     while (delim != '#')
     {
         // Read in a record.
-        int count = fscanf(fp, "%d %d %d %d %d %d,",
-                           &type, &id, &fval,
-                           &fch,  &left, &right);
+        int count = fscanf(fp, "%d %d,",
+                           &fval,
+                           &fch);
         
         // If fscanf reaches the EOF then there is an error in the
         // file format and we return NULL.
@@ -231,7 +231,7 @@ TreeNode *tree_deserialize (FILE *fp)
         
         // If fscanf did not read in all of the values then there is
         // an error in the file format, so we return NULL.
-        if (count < 6)
+        if (count < 2)
         {
             pqueue_free(pq);
             return NULL;
@@ -240,8 +240,8 @@ TreeNode *tree_deserialize (FILE *fp)
         // Construct a new TreeNode object from the values that we read in from
         // the serialized file.
         TreeNode *n = tree_new();
-        n->id = id;
-        n->type = type;
+//        n->id = id;
+        n->type = LEAF;
         n->freq.v = fval;
         n->freq.c = fch;
         
