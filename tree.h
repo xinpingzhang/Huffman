@@ -39,13 +39,12 @@ enum NodeType {
  * original tree is reconstructed.
  */
 typedef struct TreeNode TreeNode;
+
 struct TreeNode {
-    int        id;
     NodeType   type;
     Frequency  freq;
     TreeNode  *left;
     TreeNode  *right;
-    TreeNode  *next;
 };
 
 

@@ -51,6 +51,7 @@ static int comparator (const void *x, const void *y)
     else return n1->freq.c - n2->freq.c;
 }
 
+//Bubble element at index i down, until end.
 static void bubble_down(TreeNode *arr[], int i, int end)
 {
     int left = LEFT_CHILD(i);
@@ -74,6 +75,7 @@ static void bubble_down(TreeNode *arr[], int i, int end)
     arr[i] = src;
 }
 
+//bubble element at index i up.
 static void bubble_up(TreeNode *arr[], int i)
 {
     TreeNode *src = arr[i];
@@ -143,8 +145,9 @@ void pqueue_enqueue (PriorityQueue *pq, TreeNode *n)
     
     // First, check whether there is still room in the PriorityQueue (comparing
     // count against MAXSIZE).  Then, if there is room, store the tree node in
-    // the array slot indicated by count, and increment count.  Finally, call
-    // sort (to keep the queue properly sorted).
+    // the array slot indicated by count, and bubble it up
+    if(pq->count >= MAXSIZE)
+        return;
     pq->queue[pq->count++] = n;
     bubble_up(pq->queue, pq->count - 1);
     
@@ -163,13 +166,8 @@ TreeNode *pqueue_dequeue (PriorityQueue *pq)
     // TODO:
     
     // First, check to see if the priority queue is empty.  If it is, return
-    // NULL.  Next, assign the tree node at the front of the queue to a
-    // temporary variable T and move each of the subsequent elements in the
-    // queue (1 through count-1) over by one slot to the left.  You need to do
-    // this to fill in the hole left by the tree node we just dequeued.  Next,
-    // decrement count and make the last entry (the one now referred to by
-    // count) NULL.  Finally, return the tree node you assigned to the temporary
-    // T.
+    // NULL.  Add overwrite the old at index of by moving the last element
+    // to index 0. Then bubble it down.
     if(pq == NULL)
         return NULL;
     if(is_empty(pq))
@@ -209,6 +207,10 @@ int pqueue_size (PriorityQueue *pq)
 {
     return pq->count;
 }
+
+//Check if the PriorityQueue is internally consistent
+//That is, all nodes are smaller than its left child
+//and right child
 
 //void checkRep(PriorityQueue *pq)
 //{

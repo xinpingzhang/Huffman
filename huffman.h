@@ -5,7 +5,7 @@
 
 /**
  * Returns a pointer to a TreeNode object or NULL if there is an error.
- * 
+ *
  * Given a filename this function will use the Huffman coding algorithm to
  * construct a Huffman tree that can be used to encode characters from the
  * input file.
@@ -19,6 +19,8 @@ TreeNode *huffman_build_tree (const char *filename);
  *
  */
 int huffman_find (TreeNode *root, char *encoding);
+
+//This is publically available because the decoder need this as well
 TreeNode *merge_nodes(PriorityQueue *pq);
 
 #endif

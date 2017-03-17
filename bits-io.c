@@ -174,16 +174,16 @@
  */
 
 #define BUF_SIZE (1<<20)
-struct BitsIOFile 
+struct BitsIOFile
 {
     FILE *fp;            // The output/input file
     int count;           // Number of bytes read/written
     char mode;           // The mode 'w' for write and 'r' for read
     unsigned char byte;  // The byte buffer to hold the bits we are
-		       // reading/writing
-    unsigned int index;
-    unsigned int read;
-    unsigned char buf[BUF_SIZE];
+    // reading/writing
+    unsigned int index; //index into the buffer
+    unsigned int read;  //number of bytes we have read, if less than buffer size
+    unsigned char buf[BUF_SIZE];//The buffer
 };
 
 #define NO_BITS_WRITTEN ((unsigned char)(0xFE))
@@ -197,32 +197,32 @@ struct BitsIOFile
  * The `name` is the name of the file.
  * The `mode` is "w" for write and "r" for read.
  */
-BitsIOFile *bits_io_open (const char *name, const char *mode) 
+BitsIOFile *bits_io_open (const char *name, const char *mode)
 {
-
-	FILE *fp = fopen(name, mode);
-
-	if (fp == NULL) 
-		return NULL;
-
-	char mode_letter = mode[0];
-
-	BitsIOFile *bfile = (BitsIOFile*)(calloc(1, sizeof(BitsIOFile)));
-	bfile->fp    = fp;
-	bfile->count = 0;
-	bfile->mode  = mode_letter;
-	bfile->byte  = ((mode_letter == 'w') ? NO_BITS_WRITTEN : ALL_BITS_READ);
-	return bfile;
+    
+    FILE *fp = fopen(name, mode);
+    
+    if (fp == NULL)
+        return NULL;
+    
+    char mode_letter = mode[0];
+    
+    BitsIOFile *bfile = (BitsIOFile*)(calloc(1, sizeof(BitsIOFile)));
+    bfile->fp    = fp;
+    bfile->count = 0;
+    bfile->mode  = mode_letter;
+    bfile->byte  = ((mode_letter == 'w') ? NO_BITS_WRITTEN : ALL_BITS_READ);
+    return bfile;
 }
 
 
 /**
  * return the number of bytes read/written so far
  */
-int bits_io_num_bytes (BitsIOFile *bfile) 
+int bits_io_num_bytes (BitsIOFile *bfile)
 {
-	assert(bfile != NULL);
-	return bfile->count;
+    assert(bfile != NULL);
+    return bfile->count;
 }
 
 
@@ -235,6 +235,7 @@ int bits_io_close (BitsIOFile *bfile)
     
     if(bfile->mode == 'w')
     {
+        //Write what's in the buffer into file
         fwrite(bfile->buf, 1, bfile->index, bfile->fp);
         // Write the current (last) byte if we are in 'w' mode:
         if(bfile->byte != NO_BITS_WRITTEN)
@@ -263,43 +264,48 @@ int bits_io_close (BitsIOFile *bfile)
  * Returns 0 or 1 for a bit read,
  * or EOF (-1) if there are no more bits to read
  */
-int bits_io_read_bit (BitsIOFile *bfile) 
+int bits_io_read_bit (BitsIOFile *bfile)
 {
-	assert(bfile != NULL);
-
-  // TODO:
-
-  // First, we need to check whether we need to read a byte from the file.
-  // The clue for this case is that `bfile->byte` equals `ALL_BITS_READ`.  If
-  // the value read was EOF (that is, EOF_VALUE if you are looking at its
-  // value in bfile->byte), then return EOF since there are no more bits to
-  // read.
-
-  // After reading a new byte successfully, increment the count of bytes read.
-  // Then you need to shift the byte value left repeatedly until the high bit
-  // is 0, and then shift once more to get rid of that 0.  Remember: when
-  // shifting a byte the first time, insert a 1 in the low bit and all later
-  // times, shift in a 1.  (We found it easy to have a variable indicating the
-  // value to shift in.  Initialize it to 1 after reading a byte and after any
-  // shift, set it to 0.)
-
-  // If the value on entry was not `ALL_BITS_READ`, or if we have completed
-  // the preparations after reading a fresh byte, we can proceed to extract
-  // one bit and return it.  The bit to return is the high order bit of the
-  // byte.  Perform the shift left operation before returning (shifting in a
-  // 0), to leave the byte ready for the next call.
+    assert(bfile != NULL);
+    
+    // TODO:
+    
+    // First, we need to check whether we need to read a byte from the file.
+    // The clue for this case is that `bfile->byte` equals `ALL_BITS_READ`.  If
+    // the value read was EOF (that is, EOF_VALUE if you are looking at its
+    // value in bfile->byte), then return EOF since there are no more bits to
+    // read.
+    
+    // After reading a new byte successfully, increment the count of bytes read.
+    // Then you need to shift the byte value left repeatedly until the high bit
+    // is 0, and then shift once more to get rid of that 0.  Remember: when
+    // shifting a byte the first time, insert a 1 in the low bit and all later
+    // times, shift in a 1.  (We found it easy to have a variable indicating the
+    // value to shift in.  Initialize it to 1 after reading a byte and after any
+    // shift, set it to 0.)
+    
+    // If the value on entry was not `ALL_BITS_READ`, or if we have completed
+    // the preparations after reading a fresh byte, we can proceed to extract
+    // one bit and return it.  The bit to return is the high order bit of the
+    // byte.  Perform the shift left operation before returning (shifting in a
+    // 0), to leave the byte ready for the next call.
     unsigned char byte = bfile->byte;
     
     if(byte == ALL_BITS_READ)
     {
+        //If we reached the end of the buffer
         if(bfile->index >= bfile->read)
         {
+            //Read in more bytes
             int read = (int)fread(bfile->buf, 1, BUF_SIZE, bfile->fp);
+            //If we encounter an error, return EOF
             if(read == 0)
                 return EOF;
             bfile->read = (int)read;
+            //reset the pointer to beginning of the buffer
             bfile->index = 0;
         }
+        //read a byte from buffer
         byte = bfile->buf[bfile->index++];
         bfile->count++;
         unsigned char pad = 1;
@@ -316,7 +322,7 @@ int bits_io_read_bit (BitsIOFile *bfile)
     int b = (byte >> 7);
     byte <<= 1;
     bfile->byte = byte;
-	return b;
+    return b;
 }
 
 
@@ -336,11 +342,14 @@ int bits_io_write_bit (BitsIOFile *bfile, int bit)
     if ((bfile->byte >> 7) == 0)
     {
         bfile->count++;
+        //if we reached the end of the buffer, write buffer to disk
         if(bfile->index >= BUF_SIZE)
         {
             fwrite(bfile->buf, 1, BUF_SIZE, bfile->fp);
+            //reset the pointer
             bfile->index = 0;
         }
+        //write the byte to buffer
         bfile->buf[bfile->index++] = bfile->byte;
         
         // Check to see if there was a problem:
@@ -365,14 +374,14 @@ int bits_io_write_bit (BitsIOFile *bfile, int bit)
  * We need to write the tree to the file so that we can use it when we
  * decode the compressed file.
  */
-int bits_io_write_tree (BitsIOFile *bfile, TreeNode *tree) 
+int bits_io_write_tree (BitsIOFile *bfile, TreeNode *tree)
 {
-  // If the mode is not for writing we return -1.
-	if (bfile->mode != 'w')
-		return -1;
-
-	tree_serialize(tree, bfile->fp);
-	return tree_size(tree);
+    // If the mode is not for writing we return -1.
+    if (bfile->mode != 'w')
+        return -1;
+    
+    tree_serialize(tree, bfile->fp);
+    return tree_size(tree);
 }
 
 
@@ -382,11 +391,11 @@ int bits_io_write_tree (BitsIOFile *bfile, TreeNode *tree)
  * We need to do this first so we have a tree that will be used to
  * decode the rest of the input.
  */
-TreeNode *bits_io_read_tree (BitsIOFile *bfile) 
+TreeNode *bits_io_read_tree (BitsIOFile *bfile)
 {
-  // If the mode is not for writing we return -1.
-	if (bfile->mode != 'r')
-		return NULL;
-
-	return tree_deserialize(bfile->fp);
+    // If the mode is not for writing we return -1.
+    if (bfile->mode != 'r')
+        return NULL;
+    
+    return tree_deserialize(bfile->fp);
 }

@@ -17,7 +17,7 @@
 #include "huffman.h"
 
 // This is used to give each node in the tree a unique identifier:
-static int ids = 1;
+//static int ids = 1;
 
 /**
  * Returns a TreeNode object.
@@ -25,7 +25,7 @@ static int ids = 1;
 TreeNode *tree_new()
 {
     TreeNode *n = (TreeNode *)(calloc(1, sizeof(TreeNode)));
-    n->id     = ids++;
+//    n->id     = ids++;
     n->type   = INTERNAL;
     return n;
 }
@@ -118,6 +118,8 @@ static int tree_serialize_rec (TreeNode *tree, FILE *fp)
     // the recursion (base case):
     if (tree->type == LEAF)
     {
+        //Only write the leaf nodes, and only store frequency information
+        //Decoders can use the same algorithm to reconstruct the tree.
         result = fprintf(fp, "%d %d,",
 //                         tree->type,
 //                         tree->id,
@@ -238,7 +240,8 @@ TreeNode *tree_deserialize (FILE *fp)
         }
         
         // Construct a new TreeNode object from the values that we read in from
-        // the serialized file.
+        // the serialized file. Since we only store leaf nodes, all we read in are
+        // leaf nodes as well
         TreeNode *n = tree_new();
 //        n->id = id;
         n->type = LEAF;
@@ -258,6 +261,7 @@ TreeNode *tree_deserialize (FILE *fp)
         }
     }
     
+    //The reconstruct the tree using these leaf nodes
     head = merge_nodes(pq);
     pqueue_free(pq);
     return head;
