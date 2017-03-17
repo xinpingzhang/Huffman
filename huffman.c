@@ -79,12 +79,14 @@ static void compute_freq (FILE *fp, Context *ctx)
     
     //create a buffer on stack!
     unsigned char buf[1024*1024];
-    size_t len = 0;
+    
+    //number of bytes read
+    size_t read = 0;
     
     //read one chunck at a time
-    while((len = fread(buf, 1, sizeof(buf), fp)))
+    while((read = fread(buf, 1, sizeof(buf), fp)))
     {
-        for(int i = 0; i < len; i ++)
+        for(int i = 0; i < read; i ++)
         {
             //increment the corresponding frequency
             arr[buf[i]].v++;
@@ -164,13 +166,13 @@ TreeNode *merge_nodes(PriorityQueue *pq)
         TreeNode *r = pqueue_dequeue(pq);
         
         //merge them into one node
-        TreeNode *n = tree_new();
-        n->freq.v = l->freq.v + r->freq.v;
-        n->left = l;
-        n->right = r;
+        TreeNode *parent = tree_new();
+        parent->freq.v = l->freq.v + r->freq.v;
+        parent->left = l;
+        parent->right = r;
         
         //enque the combined node
-        pqueue_enqueue(pq, n);
+        pqueue_enqueue(pq, parent);
     }
     
     return pqueue_dequeue(pq);
