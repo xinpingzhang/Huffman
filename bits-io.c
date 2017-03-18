@@ -412,7 +412,7 @@ TreeNode *bits_io_read_tree (BitsIOFile *bfile)
 /**
  * Return the size of file specified by filename, in bytes.
  */
-off_t fsize(const char *filename) {
+uint64_t fsize(const char *filename) {
     struct stat st;
     
     if (stat(filename, &st) == 0)
@@ -423,13 +423,13 @@ off_t fsize(const char *filename) {
 /**
  * Write an integer offset to outputfile
  */
-int write_offset(BitsIOFile *bfile, off_t size)
+int write_offset(BitsIOFile *bfile, uint64_t size)
 {
     //do nothing if not in write mode
     if(bfile->mode != 'w')
         return EOF;
     
-    for(int i = sizeof(off_t) - 1; i >= 0; i --)
+    for(int i = sizeof(uint64_t) - 1; i >= 0; i --)
     {
         //get the ith byte
         unsigned char c = (size >> (i << 3)) & 0xFF;
@@ -442,13 +442,13 @@ int write_offset(BitsIOFile *bfile, off_t size)
 /**
  *  Read an integer offset from input file
  */
-off_t read_offset(BitsIOFile *bfile)
+uint64_t read_offset(BitsIOFile *bfile)
 {
     if(bfile->mode != 'r')
         return -1L;
     
-    off_t size = 0;
-    for(int i = 0; i < sizeof(off_t); i ++)
+    uint64_t size = 0;
+    for(int i = 0; i < sizeof(uint64_t); i ++)
     {
         int c = fgetc(bfile->fp);
         if(c == EOF)

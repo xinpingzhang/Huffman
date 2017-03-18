@@ -20,7 +20,7 @@ struct Decoder {
     FILE       *outfp;
     BitsIOFile *bfile;
     TreeNode   *tree;
-    off_t       insize;
+    uint64_t       insize;
 };
 
 /**
@@ -114,7 +114,7 @@ void decoder_decode (Decoder *decoder) {
     assert(decoder != NULL);
     
     // Read characters:
-    for (off_t i = 0; i < decoder->insize; i++)
+    for (uint64_t i = 0; i < decoder->insize; i++)
     {
         int ch = decode_one(decoder);
         if(ch == EOF)
