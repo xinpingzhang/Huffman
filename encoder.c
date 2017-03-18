@@ -11,19 +11,19 @@
 #include "huffman.h"
 #include "bits-io.h"
 #include "encoder.h"
+#include <sys/stat.h>
 
 /**
  * The Encoder structure is used to maintain all the information required to
  * encode an input file using the Huffman coding algorithm.
  */
 struct Encoder {
-    FILE        *infile;  // The file we are reading in
-    TreeNode    *tree;    // The Huffman tree
-    EncodeTable *etab;    // The encoding table
-    BitsIOFile  *bfile;   // The bits-io file we are writing to
-    size_t      fsize;     // The byte size of input file
+    FILE        *infile;    // The file we are reading in
+    TreeNode    *tree;      // The Huffman tree
+    EncodeTable *etab;      // The encoding table
+    BitsIOFile  *bfile;     // The bits-io file we are writing to
+    off_t        insize;     // The byte size of input file
 };
-
 
 /**
  * Returns a pointer to an Encoder object or NULL if there is an error.
@@ -63,7 +63,7 @@ Encoder *encoder_new (const char *infile, const char *outfile)
     encoder->tree   = tree;
     encoder->etab   = etab;
     encoder->bfile  = bfile;
-    
+    encoder->insize = fsize(infile);
     return encoder;
 }
 
@@ -82,14 +82,16 @@ int encoder_free (Encoder *encoder)
     return res;
 }
 
-
 /**
  * Encodes the input file into the output file. Returns the number of bytes
  * encoded or -1 if there was an error.
  */
 int encoder_encode (Encoder *encoder)
 {
-    // First, we need to write the tree to the output file:
+    //First, write the size of the original input file
+    write_offset(encoder->bfile, encoder->insize);
+    
+    // Second, we need to write the tree to the output file:
     int r = bits_io_write_tree(encoder->bfile, encoder->tree);
     if (r == EOF)
         return -1;

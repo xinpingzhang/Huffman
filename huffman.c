@@ -71,6 +71,7 @@ static void compute_freq(FILE *fp, Context *ctx)
     // table by incrementing its frequency.
     Frequency *arr = ctx->table;
 
+    //properly initialize the table
     for(int i = 0; i < NUMBER_OF_CHARS; i ++)
     {
         arr[i].c = i;
@@ -121,6 +122,7 @@ static void create_tree_nodes(Context *ctx)
         
     for(int i = 0; i < NUMBER_OF_CHARS; i ++)
     {
+        //positive frequency means we encountered this char in the input file
         if(arr[i].v > 0)
         {
             TreeNode *node = tree_new();
@@ -162,10 +164,8 @@ TreeNode *merge_nodes(PriorityQueue *pq)
     if(pqueue_size(pq) == 1)
     {
         TreeNode *node = tree_new();
-        if(arr[0] == 0)
-            node->freq.c = 0;
-        else
-            node->freq.c = 1;
+        //-1 is guarenteed to be smaller than any other character's frequency
+        node->freq.v = -1;
         
         pqueue_enqueue(pq, node);
     }
@@ -257,6 +257,6 @@ int huffman_find(TreeNode *tree, char *encoding)
             t = t->right;
         }
     }
-//    assert (t->type == LEAF);
+    assert (tree_is_leaf(t));
     return t->freq.c;
 }

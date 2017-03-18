@@ -20,8 +20,8 @@ struct Decoder {
     FILE       *outfp;
     BitsIOFile *bfile;
     TreeNode   *tree;
+    off_t       insize;
 };
-
 
 /**
  * Returns a pointer to an Decoder object or NULL if there is an error.
@@ -45,6 +45,9 @@ Decoder *decoder_new (const char *infile, const char *outfile)
     decoder->bfile   = bfile;
     decoder->outfp   = outfp;
     
+    decoder->insize = read_offset(decoder->bfile);
+    
+    
     // Read the tree:
     TreeNode *tree = bits_io_read_tree(bfile);
     if (tree == NULL)
@@ -53,7 +56,6 @@ Decoder *decoder_new (const char *infile, const char *outfile)
         return NULL;
     }
     decoder->tree = tree;
-    
     return decoder;
 }
 
@@ -78,7 +80,6 @@ int decoder_free (Decoder *decoder)
  */
 static int decode_one (Decoder *decoder)
 {
-    
     assert(decoder != NULL);
     
     BitsIOFile *bfile = decoder->bfile;
@@ -113,10 +114,13 @@ void decoder_decode (Decoder *decoder) {
     assert(decoder != NULL);
     
     // Read characters:
-    for (int ch; (ch = decode_one(decoder)) != EOF; )
+    for (int i = 0; i < decoder->insize; i++)
     {
+        int ch = decode_one(decoder);
+        if(ch == EOF)
+            return;
+        
         fputc(ch, decoder->outfp);
-//        fprintf(decoder->outfp, "%c", ch);
     }
     return;
 }

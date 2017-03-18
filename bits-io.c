@@ -167,6 +167,7 @@
 #include <assert.h>
 #include "bits-io.h"
 #include "tree.h"
+#include <sys/stat.h>
 
 /**
  * This structure is used to maintain the writing/reading of a
@@ -398,4 +399,54 @@ TreeNode *bits_io_read_tree (BitsIOFile *bfile)
         return NULL;
     
     return tree_deserialize(bfile->fp);
+}
+
+/**
+ * Return the size of file specified by filename, in bytes.
+ */
+off_t fsize(const char *filename) {
+    struct stat st;
+    
+    if (stat(filename, &st) == 0)
+        return st.st_size;
+    return -1;
+}
+
+/**
+ * Write an integer offset to outputfile
+ */
+int write_offset(BitsIOFile *bfile, off_t size)
+{
+    //do nothing if not in write mode
+    if(bfile->mode != 'w')
+        return EOF;
+    
+    for(int i = sizeof(off_t) - 1; i >= 0; i --)
+    {
+        //get the ith byte
+        unsigned char c = (size >> (i << 3)) & 0xFF;
+        if(fputc(c, bfile->fp) == EOF)
+            return EOF;
+    }
+    return 0;
+}
+
+/**
+ *  Read an integer offset from input file
+ */
+off_t read_offset(BitsIOFile *bfile)
+{
+    if(bfile->mode != 'r')
+        return -1L;
+    
+    off_t size = 0;
+    for(int i = 0; i < sizeof(off_t); i ++)
+    {
+        int c = fgetc(bfile->fp);
+        if(c == EOF)
+            return -1L;
+        
+        size = (size << 8) | c;
+    }
+    return size;
 }

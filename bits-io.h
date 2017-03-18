@@ -53,4 +53,19 @@ int bits_io_write_tree (BitsIOFile *bfile, TreeNode *tree);
  */
 TreeNode *bits_io_read_tree (BitsIOFile *bfile);
 
+/**
+ * Return the size of file specified by filename, in bytes.
+ */
+off_t fsize(const char *filename);
+
+/**
+ *  Read an integer offset from input file
+ */
+off_t read_offset(BitsIOFile *bfile);
+
+/**
+ * Write an integer offset to outputfile
+ */
+int write_offset(BitsIOFile *bfile, off_t size);
+
 #endif
