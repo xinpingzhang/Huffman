@@ -114,7 +114,7 @@ void decoder_decode (Decoder *decoder) {
     assert(decoder != NULL);
     
     // Read characters:
-    for (int i = 0; i < decoder->insize; i++)
+    for (off_t i = 0; i < decoder->insize; i++)
     {
         int ch = decode_one(decoder);
         if(ch == EOF)
