@@ -88,7 +88,7 @@ int encoder_free (Encoder *encoder)
  */
 int encoder_encode (Encoder *encoder)
 {
-    //First, write the size of the original input file
+    //First, write the size of the original uncompressed file
     write_offset(encoder->bfile, encoder->insize);
     
     // Second, we need to write the tree to the output file:
