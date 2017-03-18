@@ -26,7 +26,7 @@ TreeNode *tree_new()
 {
     TreeNode *n = (TreeNode *)(calloc(1, sizeof(TreeNode)));
 //    n->id     = ids++;
-    n->type   = INTERNAL;
+//    n->type   = INTERNAL;
     return n;
 }
 
@@ -68,10 +68,10 @@ static void tree_print_indent(TreeNode *tree, int depth, int indent)
     {
         for (int i = 0; i < indent; i++)
         {
-            printf(tree->type == LEAF ? "-" : " ");
+            printf(tree_is_leaf(tree) ? "-" : " ");
         }
         
-        if (tree->type == LEAF)
+        if (tree_is_leaf(tree))
         {
             printf("L/%c/%d/%d\n", tree->freq.c, tree->freq.v, depth);
         } else
@@ -116,7 +116,7 @@ static int tree_serialize_rec (TreeNode *tree, FILE *fp)
     
     // If the tree is a LEAF, then serialize to the correct format and terminate
     // the recursion (base case):
-    if (tree->type == LEAF)
+    if (tree_is_leaf(tree))
     {
         //Only write the leaf nodes, and only store frequency information
         //Decoders can use the same algorithm to reconstruct the tree.
@@ -244,7 +244,7 @@ TreeNode *tree_deserialize (FILE *fp)
         // leaf nodes as well
         TreeNode *n = tree_new();
 //        n->id = id;
-        n->type = LEAF;
+//        n->type = LEAF;
         n->freq.v = fval;
         n->freq.c = fch;
         
@@ -265,4 +265,9 @@ TreeNode *tree_deserialize (FILE *fp)
     head = merge_nodes(pq);
     pqueue_free(pq);
     return head;
+}
+
+bool tree_is_leaf(TreeNode *node)
+{
+    return node->left == NULL && node->right == NULL;
 }

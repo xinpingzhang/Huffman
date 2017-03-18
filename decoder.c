@@ -85,7 +85,7 @@ static int decode_one (Decoder *decoder)
     TreeNode   *tree  = decoder->tree;
     
     TreeNode *p = tree;
-    while (p->type != LEAF)
+    while (!tree_is_leaf(p))
     {
         int bit = bits_io_read_bit(bfile);
         

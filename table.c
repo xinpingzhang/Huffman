@@ -109,7 +109,7 @@ static void rec_gen_table (EncodeTable *etab, TreeNode *node, BitArray *b)
 {
     
     // If we have an internal node we recursively descend into the tree.
-    if (node->type == INTERNAL)
+    if (!tree_is_leaf(node))
     {
         TreeNode *left  = node->left;
         TreeNode *right = node->right;

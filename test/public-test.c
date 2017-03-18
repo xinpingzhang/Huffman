@@ -201,7 +201,7 @@ START_TEST(test_pqueue_dequeue)
     ck_assert_msg(pq != NULL, "Priority queue should not be NULL.");
     
     TreeNode *t = tree_new();
-    t->type = LEAF;
+//    t->type = LEAF;
     t->freq.v = 10;
     t->freq.c = 'c';
     t->left   = NULL;
@@ -211,7 +211,7 @@ START_TEST(test_pqueue_dequeue)
     ck_assert_int_eq(pqueue_size(pq), 1);
     
     t = tree_new();
-    t->type = LEAF;
+//    t->type = LEAF;
     t->freq.v = 15;
     t->freq.c = 'x';
     t->left   = NULL;
@@ -221,7 +221,7 @@ START_TEST(test_pqueue_dequeue)
     ck_assert_int_eq(pqueue_size(pq), 2);
     
     t = tree_new();
-    t->type = LEAF;
+//    t->type = LEAF;
     t->freq.v = 9;
     t->freq.c = 'q';
     t->left   = NULL;
@@ -231,7 +231,7 @@ START_TEST(test_pqueue_dequeue)
     ck_assert_int_eq(pqueue_size(pq), 3);
     
     t = tree_new();
-    t->type = LEAF;
+//    t->type = LEAF;
     t->freq.v = 999;
     t->freq.c = 'a';
     t->left   = NULL;

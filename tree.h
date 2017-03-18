@@ -2,7 +2,7 @@
 #define __TREE_H
 
 #include <stdio.h>
-
+#include <stdbool.h>
 
 /**
  * This structure represents the frequency of a character encountered in the
@@ -14,17 +14,6 @@ struct Frequency {
     int  v;
     // Character:
     char c;
-};
-
-
-/**
- * The NodeType is used to label a tree node as either an INTERNAL node (a
- * node with children) or a LEAF node (a node holding a character).
- */
-typedef enum NodeType NodeType;
-enum NodeType {
-    INTERNAL,
-    LEAF
 };
 
 
@@ -41,11 +30,11 @@ enum NodeType {
 typedef struct TreeNode TreeNode;
 
 struct TreeNode {
-    NodeType   type;
     Frequency  freq;
     TreeNode  *left;
     TreeNode  *right;
 };
+
 
 
 /**
@@ -85,5 +74,7 @@ int tree_serialize (TreeNode *root, FILE *fp);
  * was encountered in the format.
  */
 TreeNode* tree_deserialize (FILE *fp);
+
+bool tree_is_leaf(TreeNode *node);
 
 #endif

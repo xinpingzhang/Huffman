@@ -125,7 +125,7 @@ static void create_tree_nodes (Context *ctx)
         {
             TreeNode *node = tree_new();
             node->freq = arr[i];
-            node->type = LEAF;
+//            node->type = LEAF;
             pqueue_enqueue(pq, node);
         }
     }
@@ -246,6 +246,6 @@ int huffman_find (TreeNode *tree, char *encoding)
             t = t->right;
         }
     }
-    assert (t->type == LEAF);
+//    assert (t->type == LEAF);
     return t->freq.c;
 }
