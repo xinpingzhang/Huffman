@@ -128,18 +128,6 @@ static void create_tree_nodes(Context *ctx)
             pqueue_enqueue(pq, node);
         }
     }
-    
-    //Single character with non-zero frequency
-    if(pqueue_size(pq) == 1)
-    {
-        TreeNode *node = tree_new();
-        if(arr[0] == 0)
-            node->freq.c = 0;
-        else
-            node->freq.c = 1;
-        
-        pqueue_enqueue(pq, node);
-    }
     return;
 }
 
@@ -170,6 +158,18 @@ static TreeNode *build_tree(Context *ctx)
 
 TreeNode *merge_nodes(PriorityQueue *pq)
 {
+    //Single character with non-zero frequency
+    if(pqueue_size(pq) == 1)
+    {
+        TreeNode *node = tree_new();
+        if(arr[0] == 0)
+            node->freq.c = 0;
+        else
+            node->freq.c = 1;
+        
+        pqueue_enqueue(pq, node);
+    }
+    
     while(pqueue_size(pq) > 1)
     {
         //Dequeue two nodes with smallest frequency
