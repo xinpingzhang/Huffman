@@ -2,7 +2,7 @@
 #define __BITSTR_H
 
 #include "tree.h"
-
+#include <sys/stat.h>
 /**
  * This structure is used to maintain the writing/reading of a
  * compressed file.

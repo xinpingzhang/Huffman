@@ -167,7 +167,6 @@
 #include <assert.h>
 #include "bits-io.h"
 #include "tree.h"
-#include <sys/stat.h>
 
 /**
  * This structure is used to maintain the writing/reading of a
