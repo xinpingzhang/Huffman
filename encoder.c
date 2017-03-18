@@ -22,7 +22,7 @@ struct Encoder {
     TreeNode    *tree;      // The Huffman tree
     EncodeTable *etab;      // The encoding table
     BitsIOFile  *bfile;     // The bits-io file we are writing to
-    uint64_t        insize;     // The byte size of input file
+    uint64_t    insize;     // The byte size of input file
 };
 
 /**
