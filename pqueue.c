@@ -46,6 +46,7 @@ static int comparator (const void *x, const void *y)
     TreeNode* n2 = *(TreeNode**)y;
     int a = n1->freq.v;
     int b = n2->freq.v;
+    //first compare by frequency, character is the tie breaker
     if (a < b) return -1;
     else if(a > b) return 1;
     else return n1->freq.c - n2->freq.c;

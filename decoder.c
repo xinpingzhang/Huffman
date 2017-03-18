@@ -45,6 +45,7 @@ Decoder *decoder_new (const char *infile, const char *outfile)
     decoder->bfile   = bfile;
     decoder->outfp   = outfp;
     
+    //first 8 bytes are size of uncompressed file
     decoder->insize = read_offset(decoder->bfile);
     
     

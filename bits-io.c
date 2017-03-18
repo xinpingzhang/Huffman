@@ -266,6 +266,7 @@ int bits_io_close (BitsIOFile *bfile)
     if(bfile->mode == 'w')
     {
         flush_buf(bfile);
+        //if we have some remaining bits
         if(bfile->nbits > 0)
         {
             int c = bfile->byte;
@@ -433,6 +434,7 @@ int write_offset(BitsIOFile *bfile, uint64_t size)
     for(int i = sizeof(uint64_t) - 1; i >= 0; i --)
     {
         //get the ith byte
+        //big endian style
         unsigned char c = (size >> (i << 3)) & 0xFF;
         if(fputc(c, bfile->fp) == EOF)
             return EOF;
@@ -445,9 +447,12 @@ int write_offset(BitsIOFile *bfile, uint64_t size)
  */
 uint64_t read_offset(BitsIOFile *bfile)
 {
+    //don't do anything if not in read mode
     if(bfile->mode != 'r')
         return -1L;
     
+    //we can't just use fread to fill this variable
+    //because we might have endianess problem
     uint64_t size = 0;
     for(int i = 0; i < sizeof(uint64_t); i ++)
     {
@@ -455,6 +460,7 @@ uint64_t read_offset(BitsIOFile *bfile)
         if(c == EOF)
             return -1L;
         
+        //big endian style
         size = (size << 8) | c;
     }
     return size;

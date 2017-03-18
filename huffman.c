@@ -87,11 +87,9 @@ static void compute_freq(FILE *fp, Context *ctx)
     //read one chunck at a time
     while((read = fread(buf, 1, sizeof(buf), fp)))
     {
+        //increment the corresponding frequency
         for(int i = 0; i < read; i ++)
-        {
-            //increment the corresponding frequency
             arr[buf[i]].v++;
-        }
     }
     return;
 }
