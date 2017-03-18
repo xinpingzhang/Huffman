@@ -57,7 +57,7 @@ struct Context {
  * This phase computes the frequencies of the characters given the FILE
  * pointer fp.
  */
-static void compute_freq (FILE *fp, Context *ctx)
+static void compute_freq(FILE *fp, Context *ctx)
 {
     // TODO:
     
@@ -103,7 +103,7 @@ static void compute_freq (FILE *fp, Context *ctx)
  * and creates a new TreeNode object for each character found in the frequency
  * table.  Each new TreeNode object is enqueued into the priority queue.
  */
-static void create_tree_nodes (Context *ctx)
+static void create_tree_nodes(Context *ctx)
 {
     // TODO:
     
@@ -125,9 +125,20 @@ static void create_tree_nodes (Context *ctx)
         {
             TreeNode *node = tree_new();
             node->freq = arr[i];
-//            node->type = LEAF;
             pqueue_enqueue(pq, node);
         }
+    }
+    
+    //Single character with non-zero frequency
+    if(pqueue_size(pq) == 1)
+    {
+        TreeNode *node = tree_new();
+        if(arr[0] == 0)
+            node->freq.c = 0;
+        else
+            node->freq.c = 1;
+        
+        pqueue_enqueue(pq, node);
     }
     return;
 }
@@ -141,7 +152,7 @@ static void create_tree_nodes (Context *ctx)
  * tree that can be used to encode/decode characters and binary encoding
  * respectively.
  */
-static TreeNode *build_tree (Context *ctx)
+static TreeNode *build_tree(Context *ctx)
 {
     // TODO:
     
@@ -185,7 +196,7 @@ TreeNode *merge_nodes(PriorityQueue *pq)
  * construct a Huffman tree that can be used to encode characters from the
  * input file.
  */
-TreeNode* huffman_build_tree (const char *filename)
+TreeNode* huffman_build_tree(const char *filename)
 {
     // Define a Context object:
     Context *ctx = malloc(sizeof(Context));
@@ -227,7 +238,7 @@ TreeNode* huffman_build_tree (const char *filename)
  * 0. When we reach -1 we should be at a LEAF - we then return the character
  * found at that leaf.
  */
-int huffman_find (TreeNode *tree, char *encoding)
+int huffman_find(TreeNode *tree, char *encoding)
 {
     TreeNode *t = tree;
     for (char *ch = encoding; *ch; ++ch)
