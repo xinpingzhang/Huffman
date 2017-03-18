@@ -20,7 +20,7 @@ struct Decoder {
     FILE       *outfp;
     BitsIOFile *bfile;
     TreeNode   *tree;
-    uint64_t       insize;
+    uint64_t    insize;
 };
 
 /**
