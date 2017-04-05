@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = --std=c99 -Wall -g
+CFLAGS = --std=c99 -Wall -g -O3
 OBJS = tree.o pqueue.o huffman.o bits-io.o table.o decoder.o encoder.o
 
 all: huffc huffd treeg tableg
